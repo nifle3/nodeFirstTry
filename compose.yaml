@@ -1,0 +1,6 @@
+services:
+  bot:
+    build:
+      context: .
+    environment:
+      NODE_ENV: production
