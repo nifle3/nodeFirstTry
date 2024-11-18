@@ -1,0 +1,25 @@
+{
+  "name": "hltvnews",
+  "version": "1.0.0",
+  "description": "TG bot for hltv news parser",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node index.cjs",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "bot",
+    "tg",
+    "telegram",
+    "hltv",
+    "news",
+    "parser"
+  ],
+  "author": "nifle3",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "hltv": "^3.5.0",
+    "telegraf": "^4.16.3"
+  }
+}
