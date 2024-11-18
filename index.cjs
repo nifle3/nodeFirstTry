@@ -8,6 +8,9 @@ const chatID = process.env.CHAT_ID;
 const token = process.env.BOT_TOKEN;
 const interval = process.env.INTERVAL;
 const logInFile = process.env.LOG_IN_FILE;
+const message = process.env.MESSAGE;
+
+const hltvLink = "https://www.hltv.org";
 
 if (logInFile) {
     const logFilePath = path.join(__dirname, "logs", "app.log");
@@ -21,7 +24,6 @@ if (logInFile) {
 }
 
 const bot = new Telegram(token);
-const hltvLink = "https://www.hltv.org";
 var linkSet = undefined;
 
 setInterval(async () => {
@@ -36,7 +38,7 @@ setInterval(async () => {
         
         for (const newNew of newNews) {
             const newNewLink = hltvLink + newNew;
-            await bot.sendMessage(chatID, `Вышла новая новость ${newNewLink}`);
+            await bot.sendMessage(chatID, `${message} ${newNewLink}`);
             console.log("send");
         }
 

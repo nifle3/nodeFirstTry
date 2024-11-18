@@ -2,5 +2,7 @@ services:
   bot:
     build:
       context: .
-    environment:
-      NODE_ENV: production
+    env_file:
+      - ./.env
+    volumes:
+      - ./logs:/usr/src/app/logs:rw
