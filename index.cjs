@@ -10,11 +10,11 @@ const interval = process.env.INTERVAL;
 const logInFile = process.env.LOG_IN_FILE;
 
 if (logInFile) {
-    const logFilePath = path.join(__dirname, 'app.log');
+    const logFilePath = path.join(__dirname, "logs", "app.log");
     console.log = function(message) {
         fs.appendFile(logFilePath, message + "\n", (err) => {
             if (err) {
-                console.error("Error appedning into file");
+                console.error("Error appending into file");
             }
         });
     }
