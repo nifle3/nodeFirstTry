@@ -38,6 +38,7 @@ setInterval(async () => {
     const news = await HLTV.getNews();
     const linksToNews = news.map(value => value.link);
 
+
     if (linkSet === undefined) {
         linkSet = new Set(linksToNews);
     } else {
@@ -53,5 +54,9 @@ setInterval(async () => {
         linkSet = newLinkSet;
     }
 
-    await fs.writeFile(tmpFile, JSON.stringify(linkSet), 'utf-8');
+    var dataToFile = Array.from(linkSet);
+    fs.writeFile(tmpFile, JSON.stringify(dataToFile), 'utf-8', (err) => {
+        if (err) throw err;
+        console.log('The file has been saved!');
+      }); 
 }, interval);
