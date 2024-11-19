@@ -6,3 +6,5 @@ services:
       - ./.env
     volumes:
       - ./logs:/usr/src/app/logs:rw
+      - ./db:/usr/src/app/db:rw
+    restart: always

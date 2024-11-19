@@ -10,7 +10,11 @@ const interval = process.env.INTERVAL;
 const logInFile = process.env.LOG_IN_FILE;
 const message = process.env.MESSAGE;
 
+const tmpFile = "./db/data.json"
 const hltvLink = "https://www.hltv.org";
+const bot = new Telegram(token);
+var linkSet = undefined;
+
 
 if (logInFile) {
     const logFilePath = path.join(__dirname, "logs", "app.log");
@@ -23,8 +27,12 @@ if (logInFile) {
     }
 }
 
-const bot = new Telegram(token);
-var linkSet = undefined;
+
+if (fs.existsSync(tmpFile)) {
+    const data = require(tmpFile);
+    linkSet = new Set(data);
+}
+
 
 setInterval(async () => {
     const news = await HLTV.getNews();
@@ -44,4 +52,6 @@ setInterval(async () => {
 
         linkSet = newLinkSet;
     }
+
+    await fs.writeFile(tmpFile, JSON.stringify(linkSet), 'utf-8');
 }, interval);
