@@ -18,13 +18,20 @@ var linkSet = undefined;
 
 if (logInFile) {
     const logFilePath = path.join(__dirname, "logs", "app.log");
-    console.log = function(message) {
+    console.log = (message) => {
         fs.appendFile(logFilePath, message + "\n", (err) => {
             if (err) {
-                console.error("Error appending into file");
+                console.info("Error appending into file");
             }
         });
     }
+    console.error = (message) => {
+        fs.appendFile(logFilePath, "ERROR: " + message + "\n", err => {
+            if (err) {
+                console.info("Error appending into file");
+            }
+        })
+    } 
 }
 
 
@@ -34,8 +41,9 @@ if (fs.existsSync(tmpFile)) {
 }
 
 
-setInterval(async () => {
-    const news = await HLTV.getNews();
+var intervalId = setInterval(async () => {
+    const news = await HLTV.getNews()
+    .catch(err => console.error(err.message));;
     const linksToNews = news.map(value => value.link);
 
 
@@ -44,19 +52,23 @@ setInterval(async () => {
     } else {
         const newLinkSet = new Set(linksToNews);
         const newNews = newLinkSet.difference(linkSet);
-        
-        for (const newNew of newNews) {
-            const newNewLink = hltvLink + newNew;
-            await bot.sendMessage(chatID, `${message} ${newNewLink}`);
-            console.log("send");
-        }
-
         linkSet = newLinkSet;
+
+        await Promise.all(newNews.map(async element => {
+            const newNewLink = hltvLink + element;
+            await bot.sendMessage(chatID, `${message} ${newNewLink}`)
+            .catch(err => console.error(err.message));
+            console.log("send");
+        }));
+
     }
 
     var dataToFile = Array.from(linkSet);
-    fs.writeFile(tmpFile, JSON.stringify(dataToFile), 'utf-8', (err) => {
+    await fs.writeFile(tmpFile, JSON.stringify(dataToFile), 'utf-8', (err) => {
         if (err) throw err;
         console.log('The file has been saved!');
       }); 
 }, interval);
+
+process.on("SIGTERM", clearInterval(intervalId));
+process.on("SIGINT", clearInterval(intervalId));
