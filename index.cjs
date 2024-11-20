@@ -1,6 +1,6 @@
 var { Telegram } = require("telegraf");
 var { HLTV } = require("hltv");
-var fs = require("fs");
+var fs = require("node:fs");
 var path = require("path");
 require('dotenv').config();
 
@@ -32,18 +32,21 @@ if (logInFile) {
             }
         })
     } 
+
+    console.log('Initialize log into file');
 }
 
 
 if (fs.existsSync(tmpFile)) {
     const data = require(tmpFile);
     linkSet = new Set(data);
+    console.log('Load data from .json file');
 }
 
 var mainFunc = (
     async () => {
         const news = await HLTV.getNews()
-        .catch(err => console.error(err.message));;
+        .catch(err => console.error(`HLTV ${err.message}`));;
         const linksToNews = news.map(value => value.link);
 
 
@@ -54,11 +57,10 @@ var mainFunc = (
             const newNews = newLinkSet.difference(linkSet);
             linkSet = newLinkSet;
 
-            await Promise.all(newNews.forEach(async element => {
+            await Promise.all([...newNews].map(async element => {
                 const newNewLink = hltvLink + element;
                 await bot.sendMessage(chatID, `${message} ${newNewLink}`)
-                .catch(err => console.error(err.message));
-                console.log("send");
+                .catch(err => console.error(`TG ${err.message}`));
             }));
 
         }
@@ -66,10 +68,10 @@ var mainFunc = (
         var dataToFile = Array.from(linkSet);
         await fs.writeFile(tmpFile, JSON.stringify(dataToFile), {flag: "w+"}, (err) => {
             if (err) throw err;
-            console.log('The file has been saved!');
         });
         setTimeout(mainFunc, interval);
     }
 );
 
+console.log('Start application');
 mainFunc();
