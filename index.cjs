@@ -38,10 +38,7 @@ if (logInFile) {
 if (fs.existsSync(tmpFile)) {
     const data = require(tmpFile);
     linkSet = new Set(data);
-} else {
-    fs.
 }
-
 
 var mainFunc = (
     async () => {
