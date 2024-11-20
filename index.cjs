@@ -38,6 +38,8 @@ if (logInFile) {
 if (fs.existsSync(tmpFile)) {
     const data = require(tmpFile);
     linkSet = new Set(data);
+} else {
+    fs.
 }
 
 
@@ -55,7 +57,7 @@ var mainFunc = (
             const newNews = newLinkSet.difference(linkSet);
             linkSet = newLinkSet;
 
-            await Promise.all(newNews.map(async element => {
+            await Promise.all(newNews.forEach(async element => {
                 const newNewLink = hltvLink + element;
                 await bot.sendMessage(chatID, `${message} ${newNewLink}`)
                 .catch(err => console.error(err.message));
@@ -65,7 +67,7 @@ var mainFunc = (
         }
 
         var dataToFile = Array.from(linkSet);
-        await fs.writeFile(tmpFile, JSON.stringify(dataToFile), 'utf-8', (err) => {
+        await fs.writeFile(tmpFile, JSON.stringify(dataToFile), {flag: "w+"}, (err) => {
             if (err) throw err;
             console.log('The file has been saved!');
         });
