@@ -4,15 +4,15 @@ var fs = require("node:fs");
 var path = require("path");
 require('dotenv').config();
 
-var chatID = process.env.CHAT_ID;
-var token = process.env.BOT_TOKEN;
-var interval = process.env.INTERVAL;
-var logInFile = process.env.LOG_IN_FILE;
-var message = process.env.MESSAGE;
+const chatID = process.env.CHAT_ID;
+const token = process.env.BOT_TOKEN;
+const interval = process.env.INTERVAL;
+const logInFile = process.env.LOG_IN_FILE;
+const message = process.env.MESSAGE;
 
-var tmpFile = "./db/data.json"
-var hltvLink = "https://www.hltv.org";
-var bot = new Telegram(token);
+const tmpFile = "./db/data.json"
+const hltvLink = "https://www.hltv.org";
+const bot = new Telegram(token);
 var linkSet = undefined;
 
 
@@ -41,10 +41,12 @@ if (fs.existsSync(tmpFile)) {
     const data = require(tmpFile);
     linkSet = new Set(data);
     console.log('Load data from .json file');
+} else {
+    fs.mkdirSync(tmpFile)
 }
 
 var mainFunc = (
-    async () => {
+    async (linkSet, hltvLink, bot, interval) => {
         const news = await HLTV.getNews()
         .catch(err => console.error(`HLTV ${err.message}`));;
         const linksToNews = news.map(value => value.link);
@@ -54,24 +56,22 @@ var mainFunc = (
             linkSet = new Set(linksToNews);
         } else {
             const newLinkSet = new Set(linksToNews);
-            const newNews = newLinkSet.difference(linkSet);
-            linkSet = newLinkSet;
+            const newsToSend = newLinkSet.difference(linkSet);
+            linkSet = newsToSend;
 
-            await Promise.all([...newNews].map(async element => {
-                const newNewLink = hltvLink + element;
-                await bot.sendMessage(chatID, `${message} ${newNewLink}`)
-                .catch(err => console.error(`TG ${err.message}`));
-            }));
-
+            for (const link of newsToSend) {
+                const fullLink = `${hltvLink}${link}`;
+                await bot.sendMessage(`${config.message} ${fullLink}`);
+            }
         }
 
         var dataToFile = Array.from(linkSet);
         await fs.writeFile(tmpFile, JSON.stringify(dataToFile), {flag: "w+"}, (err) => {
             if (err) throw err;
         });
-        setTimeout(mainFunc, interval);
+        setTimeout(mainFunc, interval, linkSet, hltvLink, bot, interval);
     }
 );
 
 console.log('Start application');
-mainFunc();
+mainFunc(linkSet, hltvLink, bot, interval);
