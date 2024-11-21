@@ -17,7 +17,12 @@ var linkSet = undefined;
 
 
 if (logInFile) {
-    const logFilePath = path.join(__dirname, "logs", "app.log");
+    const logFileDir = path.join(__dirname, "logs");
+    if (!fs.existsSync(logFileDir))  {
+        fs.mkdirSync(logFileDir)
+    }
+
+    const logFilePath = path.join(logFileDir, "logs");
     console.log = (message) => {
         fs.appendFile(logFilePath, message + "\n", (err) => {
             if (err) {
@@ -41,8 +46,8 @@ if (fs.existsSync(tmpFile)) {
     const data = require(tmpFile);
     linkSet = new Set(data);
     console.log('Load data from .json file');
-} else {
-    fs.mkdirSync(tmpFile)
+} else if(!fs.existsSync("./db")){
+    fs.mkdirSync("./db");
 }
 
 var mainFunc = (
