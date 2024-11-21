@@ -66,7 +66,7 @@ var mainFunc = (
 
             for (const link of newsToSend) {
                 const fullLink = `${hltvLink}${link}`;
-                await bot.sendMessage(`${config.message} ${fullLink}`);
+                await bot.sendMessage(chatID, `${message} ${fullLink}`);
             }
         }
 
