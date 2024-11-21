@@ -46,7 +46,7 @@ if (fs.existsSync(tmpFile)) {
 }
 
 var mainFunc = (
-    async (linkSet, hltvLink, bot, interval) => {
+    async () => {
         const news = await HLTV.getNews()
         .catch(err => console.error(`HLTV ${err.message}`));;
         const linksToNews = news.map(value => value.link);
@@ -69,9 +69,9 @@ var mainFunc = (
         await fs.writeFile(tmpFile, JSON.stringify(dataToFile), {flag: "w+"}, (err) => {
             if (err) throw err;
         });
-        setTimeout(mainFunc, interval, linkSet, hltvLink, bot, interval);
+        setTimeout(mainFunc, interval);
     }
 );
 
 console.log('Start application');
-mainFunc(linkSet, hltvLink, bot, interval);
+mainFunc();
