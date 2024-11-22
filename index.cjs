@@ -62,11 +62,12 @@ var mainFunc = (
         } else {
             const newLinkSet = new Set(linksToNews);
             const newsToSend = newLinkSet.difference(linkSet);
-            linkSet = newsToSend;
+            linkSet = newLinkSet;
 
             for (const link of newsToSend) {
                 const fullLink = `${hltvLink}${link}`;
                 await bot.sendMessage(chatID, `${message} ${fullLink}`);
+                se
             }
         }
 
