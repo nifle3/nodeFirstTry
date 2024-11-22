@@ -1,7 +1,8 @@
-var { Telegram } = require("telegraf");
-var { HLTV } = require("hltv");
-var fs = require("node:fs");
-var path = require("path");
+const { Telegram } = require("telegraf");
+const { HLTV } = require("hltv");
+const fs = require("node:fs");
+const path = require("path");
+const { clear } = require("node:console");
 require('dotenv').config();
 
 const chatID = process.env.CHAT_ID;
@@ -50,8 +51,14 @@ if (fs.existsSync(tmpFile)) {
     fs.mkdirSync("./db");
 }
 
+var isRunning = false;
+
 var mainFunc = (
     async () => {
+        if (isRunning) {
+            return;
+        }
+        
         const news = await HLTV.getNews()
         .catch(err => console.error(`HLTV ${err.message}`));;
         const linksToNews = news.map(value => value.link);
@@ -59,25 +66,30 @@ var mainFunc = (
 
         if (linkSet === undefined) {
             linkSet = new Set(linksToNews);
-        } else {
-            const newLinkSet = new Set(linksToNews);
-            const newsToSend = newLinkSet.difference(linkSet);
-            linkSet = newLinkSet;
+            isRunning = false;
+            return;
+        } 
 
-            for (const link of newsToSend) {
-                const fullLink = `${hltvLink}${link}`;
-                await bot.sendMessage(chatID, `${message} ${fullLink}`);
-                se
-            }
+        const newLinkSet = new Set(linksToNews);
+        const newsToSend = newLinkSet.difference(linkSet);
+        linkSet = newLinkSet;
+
+        for (const link of newsToSend) {
+            const fullLink = `${hltvLink}${link}`;
+            await bot.sendMessage(chatID, `${message} ${fullLink}`).catch(err => {
+                console.log(err);
+            });
         }
-
         var dataToFile = Array.from(linkSet);
         await fs.writeFile(tmpFile, JSON.stringify(dataToFile), {flag: "w+"}, (err) => {
             if (err) throw err;
         });
-        setTimeout(mainFunc, interval);
+
+        isRunning = false;
     }
 );
 
-console.log('Start application');
-mainFunc();
+var setIntervalID = setInterval(mainFunc, interval);
+
+process.on("SIGINT", () => clearInterval(setIntervalID));
+process.on("SIGTERM", () => clearInterval(setIntervalID));
